@@ -13,13 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('departements', function (Blueprint $table) {
+        Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); 
-            $table->string('admin');
+            $table->foreignId('employee_id')->constrained()->onDelete('cascade');
+            $table->date('date');
+            $table->time('check_in');
+            $table->time('check_out')->nullable();
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.
@@ -28,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('departements');
+        Schema::dropIfExists('attendances');
     }
 };

@@ -13,13 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('attendances', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('employee_id')->constrained()->onDelete('cascade');
-            $table->date('date');
-            $table->time('check_in');
-            $table->time('check_out')->nullable();
-            $table->timestamps();
+        Schema::table('employees', function (Blueprint $table) {
+            //
         });
     }
 
@@ -30,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('attendances');
+        Schema::table('employees', function (Blueprint $table) {
+            //
+        });
     }
 };

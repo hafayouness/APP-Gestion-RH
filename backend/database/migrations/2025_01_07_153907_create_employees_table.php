@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('employee_number')->unique();
-            $table->foreignId('department_id')->constrained('departments')->onDelete('set null'); 
+            // $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('set null'); 
             $table->string('phone_number');
             $table->string('position');
             $table->date('hire_date');

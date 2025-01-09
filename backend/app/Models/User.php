@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -46,12 +47,33 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+      
+     
+    //  table lier avec profile
 
+    public function profile()
+    {
+        return $this->hasOne(Profile::class);
+    }
     //  table lier avec departement
     public function department()
     {
         return $this->belongsTo(Department::class);
     }
-    
+
+    public function isAdmin()
+    {
+        return $this->role_id === 'admin';
+    }
+
+    public function isManager()
+    {
+        return $this->role_id === 'manager';
+    }
+
+    public function isActive()
+    {
+        return $this->status === 'active';
+    } 
 
 }
