@@ -10,102 +10,73 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Notifications\ResetPasswordNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ResetPasswordMail;
-
+use App\Models\User;
 
 class PasswordResetController extends Controller
 {
    
 
     public function sendResetLink(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
-        
-       
-        $status = Password::sendResetLink($request->only('email'));
+{
     
-        
-        $token = Str::random(64); 
-        $hashedToken = Hash::make($token); 
-        
-        DB::table('password_resets')->updateOrInsert(
-                ['email' => $request->email],
-                ['token' => $hashedToken, 'created_at' => now()]
-            );
+    $request->validate(['email' => 'required|email']);
+
     
+    $status = Password::sendResetLink($request->only('email'));
+
+    if ($status === Password::RESET_LINK_SENT) {
         return response()->json([
-            'status' => $status,
-            'message' => __($status),
-            'debug' => [
-                'token' => $token,
-                'email' => $request->email
-            ]
-        ]);
+            'message' => __('Un e-mail de réinitialisation a été envoyé à :email.', ['email' => $request->email]),
+            'redirectUrl' => 'http://localhost:3000/reset-password'
+        ], 200);
     }
+
+   
+    return response()->json([
+        'message' => __('Impossible d\'envoyer l\'e-mail de réinitialisation. Veuillez vérifier l\'adresse e-mail.'),
+    ], 400);
+}
+
     
 
+   
     public function reset(Request $request)
     {
-        Log::info('Reset Request Data:', $request->all());
-    
+        
         $request->validate([
-            'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed', 
         ]);
     
-       
-        $resetEntry = DB::table('password_resets')
-            ->where('email', $request->email)
-            ->first();
-    
-        if (!$resetEntry) {
-            return response()->json(['message' => 'No reset entry found for this email.'], 400);
-        }
-    
-        Log::info('Password Reset Table Entry:', (array) $resetEntry);
-    
-      
-        if (!Hash::check($request->token, $resetEntry->token)) {
-            return response()->json([
-                'message' => 'Token mismatch.',
-                'debug' => [
-                    'provided_token' => $request->token,
-                    'stored_token' => $resetEntry->token,
-                ],
-            ], 400);
-        }
-    
         
-        $tokenCreatedAt = $resetEntry->created_at;
-        if (Carbon::parse($tokenCreatedAt)->addMinutes(config('auth.passwords.users.expire'))->isPast()) {
-            return response()->json(['message' => 'Token has expired.'], 400);
+        $user = User::where('email', $request->email)->first();
+    
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
         }
-    
-        
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($user, $password) {
-                $user->forceFill([
-                    'password' => Hash::make($password),
-                ])->save();
-            }
-        );
-    
-        Log::info('Reset Status:', ['status' => $status]);
     
        
-        if ($status === Password::PASSWORD_RESET) {
-            DB::table('password_resets')->where('email', $request->email)->delete();
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'The current password is incorrect.'], 400);
         }
     
-        return $status === Password::PASSWORD_RESET
-            ? response()->json(['message' => __($status)], 200)
-            : response()->json(['message' => __($status)], 400);
+       
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+    
+        
+        return response()->json(['message' => 'Password has been successfully updated.'], 200);
     }
+     
     
+ 
+    
+
 
     public function debugReset() {
        

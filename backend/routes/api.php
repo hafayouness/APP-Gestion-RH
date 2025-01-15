@@ -27,10 +27,12 @@ Route::get("/hello", function () {
 });
 
 Route::post('register', [RegisterController::class, 'register']);
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('login', [LoginController::class, 'login']);
 
 Route::post('/password/email', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
 Route::post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
+// Route::middleware('auth:api')->post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
+
 Route::get('/reset-password/{token}', function (string $token) {
     return view('auth.reset-password', ['token' => $token]);
 })->name('password.reset');

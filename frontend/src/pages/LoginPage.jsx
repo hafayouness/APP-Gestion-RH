@@ -1,17 +1,32 @@
 import { LogIn, Mail, Lock } from "lucide-react";
 import React, { useState } from "react";
 import api from "../utils/api";
+import { useDispatch } from "react-redux";
+// import { useNavigate } from "react-router-dom";
+import { setCredentials } from "../store/features/auth/authSlice";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  // const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    rememberMe: false,
   });
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      // [name]: value,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    setErrors("");
+  };
+  console.log("formData", formData);
   const validateForm = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,7 +37,11 @@ const LoginPage = () => {
       newErrors.password =
         "Le mot de passe doit contenir au moins 8 caractères";
     }
-    setErrors(newErrors); // Ajoutez cette ligne pour mettre à jour les erreurs dans l'état
+    if (!formData.rememberMe) {
+      newErrors.rememberMe =
+        "Vous devez accepter les termes avant de vous connecter.";
+    }
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -33,30 +52,36 @@ const LoginPage = () => {
     }
 
     setIsSubmitting(true);
+    setErrors("");
 
     try {
-      const response = await api.post("/login", {
-        email: formData.email,
-        password: formData.password,
-      });
+      const response = await api.post("/login", formData);
+
+      dispatch(
+        setCredentials({ user: response.data.user, token: response.data.token })
+      );
 
       console.log("Réponse du serveur:", response.data);
       setSubmitSuccess(true);
 
-      // Réinitialisation du formulaire
       setFormData({
         email: "",
         password: "",
+        rememberMe: false,
       });
     } catch (error) {
       console.error("Erreur lors de connexion:", error);
-      if (error.response?.data?.errors) {
+      if (error.response?.status === 401) {
+        setErrors({
+          submit: "Adresse email ou mot de passe incorrect.",
+        });
+      } else if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       } else {
         setErrors({
           submit:
             error.response?.data?.message ||
-            "Une erreur est survenue lors de connexion.",
+            "Une erreur est survenue lors de la connexion.",
         });
       }
     } finally {
@@ -105,10 +130,13 @@ const LoginPage = () => {
                   required
                   className="block py-2 w-full pl-10 sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="vous@exemple.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleInputChange}
                 />
               </div>
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
 
             <div>
@@ -129,18 +157,23 @@ const LoginPage = () => {
                   autoComplete="current-password"
                   required
                   className="block py-2 w-full pl-10 sm:text-sm border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleInputChange}
                 />
               </div>
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
-                  name="remember-me"
+                  name="rememberMe"
                   type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleInputChange}
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 />
                 <label
@@ -153,7 +186,7 @@ const LoginPage = () => {
 
               <div className="text-sm">
                 <a
-                  href="/reset-password"
+                  href="/forget-password"
                   className="font-medium text-indigo-600 hover:text-indigo-500"
                 >
                   Mot de passe oublié ?
@@ -201,6 +234,7 @@ const LoginPage = () => {
               </button>
             </div>
           </form>
+
           <div className="p-4">
             {submitSuccess && (
               <div className="bg-green-100 border-l-4 border-green-500 text-green-800 p-4">
@@ -213,6 +247,12 @@ const LoginPage = () => {
               <div className="bg-red-100 border-l-4 border-red-500 text-red-800 p-4 mt-2">
                 <strong className="font-bold">Erreur : </strong>
                 {errors.submit}
+              </div>
+            )}
+            {errors.rememberMe && (
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-800 p-4 mt-2">
+                <strong className="font-bold">Erreur : </strong>
+                {errors.rememberMe}
               </div>
             )}
           </div>

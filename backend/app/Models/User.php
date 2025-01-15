@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use App\Notifications\ResetPasswordNotification;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
@@ -75,5 +76,9 @@ class User extends Authenticatable
     {
         return $this->status === 'active';
     } 
-
+    public function sendPasswordResetNotification($token)
+    {
+        $frontendUrl = "http://localhost:3000/reset-password?token={$token}";
+        $this->notify(new \App\Notifications\ResetPasswordNotification($frontendUrl));
+    }
 }
