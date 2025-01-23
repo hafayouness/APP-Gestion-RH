@@ -6,6 +6,9 @@ import RegisterPage from "./pages/RegisterPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { UserPlus, LogIn } from "react-feather";
 import ForgetPawssord from "./pages/ForgetPawssord";
+import Dashboard from "./pages/Dashboard";
+import ListeUtulisateus from "./components/ListeUtulisateus";
+import UserDetailsModal from "./components/UserDetailsModal";
 
 function App() {
   return (
@@ -57,6 +60,10 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forget-password" element={<ForgetPawssord />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/dashboard" element={<Dashboard />}>
+            <Route index element={<ListeUtulisateus />} />
+            <Route path="user-details" element={<UserDetailsModal />} />{" "}
+          </Route>
         </Routes>
       </Router>
     </div>

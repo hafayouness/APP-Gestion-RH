@@ -2,12 +2,12 @@ import { LogIn, Mail, Lock } from "lucide-react";
 import React, { useState } from "react";
 import api from "../utils/api";
 import { useDispatch } from "react-redux";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { setCredentials } from "../store/features/auth/authSlice";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [errors, setErrors] = useState({});
@@ -60,9 +60,8 @@ const LoginPage = () => {
       dispatch(
         setCredentials({ user: response.data.user, token: response.data.token })
       );
-
-      console.log("Réponse du serveur:", response.data);
       setSubmitSuccess(true);
+      navigate("/dashboard");
 
       setFormData({
         email: "",

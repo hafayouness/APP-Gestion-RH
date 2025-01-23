@@ -44,10 +44,13 @@ const ResetPasswordPage = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     if (!passwords.current || !passwords.new || !passwords.confirm) {
       setError("Tous les champs doivent être remplis.");
+      setLoading(false);
       return;
     }
+
     if (passwords.new !== passwords.confirm) {
       setError("Les mots de passe ne correspondent pas.");
       setLoading(false);
@@ -57,19 +60,18 @@ const ResetPasswordPage = () => {
     try {
       const response = await api.post("/password/reset", {
         email: email,
-        currentPassword: passwords.current, // Mot de passe actuel
-        newPassword: passwords.new,
-        confirmPassword: passwords.confirm, // Confirmer le nouveau mot de passe
+        current_password: passwords.current,
+        new_password: passwords.new,
+        new_password_confirmation: passwords.confirm,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Une erreur est survenue.");
-      }
-
-      setIsSubmitted(true); // Mot de passe modifié avec succès
+      console.log(response);
+      setIsSubmitted(true);
     } catch (error) {
-      setError(error.message);
+      console.error("Erreur :", error);
+      setError(
+        error.response?.data?.message ||
+          "Une erreur est survenue. Veuillez réessayer."
+      );
     } finally {
       setLoading(false);
     }
@@ -241,6 +243,14 @@ const ResetPasswordPage = () => {
             <p className="text-gray-600">
               Vous avez changé votre mot de passe avec succès.
             </p>
+            <div className="mt-6 text-center">
+              <a
+                href="/login"
+                className="text-sm text-indigo-600 hover:text-indigo-800"
+              >
+                Retour à la connexion
+              </a>
+            </div>
           </div>
         )}
 

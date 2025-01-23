@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,7 +33,7 @@ Route::post('login', [LoginController::class, 'login']);
 
 Route::post('/password/email', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
 Route::post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
-// Route::middleware('auth:api')->post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
+
 
 Route::get('/reset-password/{token}', function (string $token) {
     return view('auth.reset-password', ['token' => $token]);
@@ -40,4 +42,10 @@ Route::get('/password/debug', [PasswordResetController::class, 'debugReset']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
+    Route::get('/profile/{userId}', [ProfileController::class, 'show']);
+    Route::put('/profile/{userId}/update', [ProfileController::class, 'updateProfile']);
+    Route::get('/user', [UserController::class, 'getAuthenticatedUser']);
 });
+Route::get('/users', [UserController::class, 'index']);
+
+
