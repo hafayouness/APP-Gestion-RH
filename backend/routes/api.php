@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ContractController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -44,8 +45,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
     Route::get('/profile/{userId}', [ProfileController::class, 'show']);
     Route::put('/profile/{userId}/update', [ProfileController::class, 'updateProfile']);
+    Route::delete('/profile/{userId}', [ProfileController::class, 'destroy'])->name('users.destroy');
     Route::get('/user', [UserController::class, 'getAuthenticatedUser']);
+    Route::post('/profile/ajouterProfile', [ProfileController::class, 'store']);
 });
 Route::get('/users', [UserController::class, 'index']);
+Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/contracts', [ContractController::class, 'index']);
+    Route::post('/contract', [ContractController::class, 'store']);
+});
+
 
 

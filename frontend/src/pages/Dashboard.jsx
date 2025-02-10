@@ -1,6 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Menu, User, Home, LogOut, Settings, ChevronDown } from "lucide-react";
-import { Outlet } from "react-router-dom";
+import React, { use, useEffect, useState } from "react";
+import {
+  Menu,
+  User,
+  Home,
+  LogOut,
+  Settings,
+  ChevronDown,
+  UserCheck,
+  UserPlus,
+  FileText,
+  FileDiff,
+} from "lucide-react";
+import { Link, Outlet } from "react-router-dom";
 import api from "../utils/api";
 
 const Dashboard = () => {
@@ -9,7 +20,8 @@ const Dashboard = () => {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const useRole = user.role_id === "admin";
+  console.log(useRole);
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -21,10 +33,8 @@ const Dashboard = () => {
     const fetchUserProfile = async () => {
       try {
         const response = await api.get("/user");
-        console.log(response);
+
         const data = response.data;
-        console.log(data);
-        console.log(data.user.name);
 
         if (data.success) {
           setUser(data.user || []);
@@ -46,7 +56,6 @@ const Dashboard = () => {
     fetchUserProfile();
   }, []);
 
-  console.log(user.name);
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <aside
@@ -55,37 +64,80 @@ const Dashboard = () => {
         } bg-gray-100  text-white h-screen flex flex-col justify-between transition-all duration-300 fixed top-0 left-0 z-40`}
       >
         <div className="flex flex-col space-y-8 mt-20">
-          <a
-            href="#"
-            className="flex items-center justify-center space-x-3 p-3  "
-          >
-            <Home size={20} color="gray" />
-            {isSidebarOpen && (
-              <span className="text-black">Tableau de bord</span>
-            )}
-          </a>
-          {/* <a
-            href="#"
-            className="flex items-center justify-center space-x-3 p-3 "
-          >
-            <User size={20} color="gray" />
-            {isSidebarOpen && <span className="text-black">Profil</span>}
-          </a> */}
-          {/* <a
-            href="#"
-            className="flex items-center justify-center space-x-3 p-3"
-          >
-            <Settings size={20} color="gray" />
-            {isSidebarOpen && <span className="text-black">Paramètres</span>}
-          </a> */}
+          {useRole && (
+            <>
+              <Link
+                to="/dashboard"
+                className="flex items-center justify-start space-x-3 p-3"
+              >
+                <Home size={20} color="gray" />
+                {isSidebarOpen && (
+                  <span className="text-black">Tableau de bord</span>
+                )}
+              </Link>
+              <Link
+                to="/dashboard/liste-personnels"
+                className="flex items-center justify-start space-x-3 p-3"
+              >
+                <User size={20} color="gray" />
+                {isSidebarOpen && (
+                  <span className="text-black">Liste des personnels</span>
+                )}
+              </Link>
+              {/* <Link
+                to="/dashboard/ajouter-personnel"
+                className="flex items-center justify-start space-x-3 p-3"
+              >
+                <UserPlus size={20} color="gray" />
+                {isSidebarOpen && (
+                  <span className="text-black">Ajouter les personnels</span>
+                )}
+              </Link> */}
+              <Link
+                to="/dashboard/creation-contract"
+                className="flex items-center justify-start space-x-3 p-3"
+              >
+                <FileDiff size={20} color="gray" />
+                {isSidebarOpen && (
+                  <span className="text-black">Creation des contracts</span>
+                )}
+              </Link>
+              <Link
+                to="/dashboard/contrat-personnel"
+                className="flex items-center justify-start space-x-3 p-3"
+              >
+                <FileText size={20} color="gray" />
+                {isSidebarOpen && (
+                  <span className="text-black">
+                    Les contrats des personnels
+                  </span>
+                )}
+              </Link>
+            </>
+          )}
+          {!useRole && (
+            <Link
+              to="/dashboard/profile-user"
+              className="flex items-center justify-start space-x-3 p-3"
+            >
+              <User size={20} color="gray" />
+              {isSidebarOpen && <span className="text-black">Mon Profil</span>}
+            </Link>
+          )}
         </div>
-
         {/* <div className="p-4">
+          {isSidebarOpen && (
+            <div className="text-black text-center mb-4">
+              {useRole
+                ? "Vous êtes connecté en tant qu'administrateur"
+                : `Vous êtes connecté en tant que ${user.role_id}`}
+            </div>
+          )}
           <a
             href="#"
             className="flex items-center justify-center space-x-3 p-3 hover:bg-red-600 rounded-lg"
           >
-            <LogOut size={20} />
+            <LogOut size={20} color="gray" />
             {isSidebarOpen && <span>Se déconnecter</span>}
           </a>
         </div> */}
@@ -150,7 +202,7 @@ const Dashboard = () => {
                           <p className="text-sm font-medium text-gray-900 truncate">
                             {user?.name}
                           </p>
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium text-gray-500 truncate">
                             {user?.email}
                           </p>
                         </div>

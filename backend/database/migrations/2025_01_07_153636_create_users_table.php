@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('password');
             // $table->unsignedBigInteger('department_id')->nullable();
-            $table->enum('role_id', ['admin', 'manager', 'employer'])->default('employer');
+            $table->enum('role_id', ['admin', 'manager', 'employer',"stagiaire"])->default('employer');
             $table->enum('status', ['active', 'inactive'])->default('active');
             // $table->foreign('department_id')
             //       ->references('id')

@@ -25,7 +25,7 @@ class RegisterController extends Controller
         "password" => "required|min:8",
         "phone" => "nullable|string|max:20",
         "address" => "nullable|string|max:255",
-        "role_id" => "nullable|string|in:admin,manager,employer",
+        "role_id" => "nullable|string|in:admin,manager,employer,stagiaire",
         "photo" => "nullable|string",
     ]);
 

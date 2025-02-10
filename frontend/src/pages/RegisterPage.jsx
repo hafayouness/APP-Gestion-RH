@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Upload, Eye, EyeOff } from "lucide-react";
 import api from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
@@ -8,6 +9,8 @@ const RegisterPage = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -92,6 +95,7 @@ const RegisterPage = () => {
 
       console.log("Réponse du serveur:", response.data);
       setSubmitSuccess(true);
+      navigate("/login");
 
       // Réinitialisation du formulaire
       setFormData({
@@ -152,7 +156,7 @@ const RegisterPage = () => {
                   <img
                     src={imagePreview}
                     alt="Aperçu"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-100 flex items-center justify-center">
@@ -260,8 +264,9 @@ const RegisterPage = () => {
               >
                 <option value="">choisie un role</option>
                 <option value="admin">Admin</option>
-                <option value="emplyer">Employer</option>
+                <option value="employer">Employer</option>
                 <option value="manager">Manager</option>
+                <option value="stagiaire">Stagiaire</option>
               </select>
             </div>
           </div>

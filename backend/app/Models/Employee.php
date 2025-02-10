@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Employee extends Model
 {
@@ -21,11 +23,11 @@ class Employee extends Model
     {
         return $this->belongsTo(Department::class);
     }
-    public function contracts()
+    public function contractable(): MorphTo
     {
-        return $this->hasMany(Contract::class);
+        return $this->morphTo();
     }
-
+   
     public function attendances()
     {
         return $this->hasMany(Attendance::class);

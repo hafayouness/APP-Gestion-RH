@@ -7,8 +7,10 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { UserPlus, LogIn } from "react-feather";
 import ForgetPawssord from "./pages/ForgetPawssord";
 import Dashboard from "./pages/Dashboard";
-import ListeUtulisateus from "./components/ListeUtulisateus";
-import UserDetailsModal from "./components/UserDetailsModal";
+import ListeUtulisateurs from "./components/ListeUtulisateurs";
+import ContratDesPersonnels from "./components/ContratDesPersonnels";
+import ProfileUser from "./components/ProfileUser";
+import CreationContracts from "./components/CreationContracts";
 
 function App() {
   return (
@@ -61,8 +63,13 @@ function App() {
           <Route path="/forget-password" element={<ForgetPawssord />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<Dashboard />}>
-            <Route index element={<ListeUtulisateus />} />
-            <Route path="user-details" element={<UserDetailsModal />} />{" "}
+            <Route path="liste-personnels" element={<ListeUtulisateurs />} />
+            <Route path="profile-user" element={<ProfileUser />} />
+            <Route path="creation-contract" element={<CreationContracts />} />
+            <Route
+              path="contrat-personnel"
+              element={<ContratDesPersonnels />}
+            />
           </Route>
         </Routes>
       </Router>
