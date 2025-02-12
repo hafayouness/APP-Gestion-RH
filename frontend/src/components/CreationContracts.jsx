@@ -11,6 +11,7 @@ const CreationContracts = () => {
     end_date: "",
     type: "",
   });
+  const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +19,8 @@ const CreationContracts = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setSuccess(null);
+    setError(null);
 
     try {
       const response = await api.post("/contract", formData, {
@@ -28,6 +31,7 @@ const CreationContracts = () => {
       console.log("data", data);
       if (data.success) {
         alert(`succes: ${data.message}`);
+        setSuccess(data.message);
         setFormData(data);
         navigate("/dashboard/contrat-personnel");
 
@@ -44,7 +48,6 @@ const CreationContracts = () => {
     } catch (err) {
       console.log(err);
       if (err.response && err.response.data.errors) {
-        // Récupérer les erreurs Laravel
         const errorMessages = Object.values(err.response.data.errors)
           .flat()
           .join("\n");
@@ -70,6 +73,11 @@ const CreationContracts = () => {
         {error && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+            {success}
           </div>
         )}
         <form className="space-y-6" onSubmit={handleSubmit}>

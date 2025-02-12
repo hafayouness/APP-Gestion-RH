@@ -53,6 +53,8 @@ Route::get('/users', [UserController::class, 'index']);
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/contracts', [ContractController::class, 'index']);
     Route::post('/contract', [ContractController::class, 'store']);
+    Route::put('/contract/{id}/update', [ContractController::class, 'update']);
+    Route::delete('/contract/{id}', [ContractController::class, 'delete']);
 });
 
 

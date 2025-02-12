@@ -1,3 +1,47 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  #attestation-content,
+  #attestation-content * {
+    visibility: visible !important;
+  }
+
+  #attestation-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-height: 100vh;
+    overflow: hidden;
+    page-break-after: avoid;
+  }
+
+  #attestation-content,
+  #attestation-content * {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-before: avoid;
+    page-break-after: avoid;
+  }
+
+  html,
+  body {
+    transform: scale(0.98);
+  }
+}

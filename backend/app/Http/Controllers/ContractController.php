@@ -82,4 +82,48 @@ class ContractController extends Controller
             )
         ], 201);
     }
+    public function update(Request $request,$id){
+        if(auth()->user()->role_id !== "admin"){
+            return response()->json(["message"=>"Seul un administrateur peut modifier un contrat"],403);
+        }
+
+        $validator = Validator::make($request->all(),[
+            "type"=>"sometimes|in:CDI,CDD,Stage",
+            "start_date"=>"sometimes|date",
+            "end_date"=>"nullable|date|after:start_date",
+
+        ]);
+
+        if($validator->fails()){
+            return response()->json(['errors' => $validator->errors()], 400);
+
+        }
+        $contract = Contract::find($id);
+        if (!$contract) {
+            return response()->json(['message' => 'Contrat non trouvé.'], 404);
+        }
+
+        $contract->update([
+            'type' => $request->type,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'duration' => $request->end_date ? Carbon::parse($request->start_date)->diffInMonths(Carbon::parse($request->end_date)) : null
+
+        ]);
+
+        return response()->json(['message' => 'Contrat mis à jour avec succès', 'contract' => $contract], 200);
+
+    }
+    public function delete($id){
+        if(auth()->user()->role_id !== "admin"){
+            return response()->json(["message"=>"Seul un administrateur peut supprimer un contrat"],403);
+        }
+
+        $contract = Contract::find($id);
+        if(!$contract){
+            return response()->json(['message'=> "Contrat non  trouvé."],404);
+        }
+        $contract->delete();
+        return response()->json(['message'=>"Contrat supprimé avec succès. "],200);
+    }
 }
