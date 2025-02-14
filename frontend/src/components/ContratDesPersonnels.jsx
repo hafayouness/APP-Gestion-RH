@@ -13,23 +13,50 @@ import {
   Users,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import api from "../utils/api";
 import { Modal, Button } from "flowbite-react";
+import { AttestationContent } from "./AttestationContent";
+import { UpdateContract } from "./UpdateContract";
+import DeleteContract from "./DeleteContract";
 
 const ContratDesPersonnels = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [contracts, setContracts] = useState([]);
+
   const [selectedType, setSelectedType] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
+  const isContractExpiringSoon = (end_date) => {
+    const endDate = new Date(end_date);
+    const today = new Date();
+    const timeDiff = endDate.getTime() - today.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Différence en jours
+    return daysDiff <= 30 && daysDiff >= 0; // Expire dans les 30 prochains jours
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const contractsResponse = await api.get("/contracts");
         setContracts(contractsResponse.data);
+        const expiringContracts = contractsResponse.data.filter((contract) =>
+          isContractExpiringSoon(contract.end_date)
+        );
+
+        if (expiringContracts.length > 0) {
+          toast.warning(
+            `Attention : ${expiringContracts.length} contrat(s) expire(nt) bientôt.`,
+            { autoClose: 5000 }
+          );
+        }
       } catch (error) {
         console.error("Détails de l'erreur:", error);
         setError(`Erreur: ${error.message || "Erreur inconnue"}`);
@@ -56,104 +83,50 @@ const ContratDesPersonnels = () => {
     const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
     return Math.floor(days / 30);
   };
-  const currentDate = new Date().toLocaleDateString("fr-FR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+
   const handleUserClick = (user) => {
     setSelectedUser(user);
     setShowModal(true);
   };
 
+  const openDeleteModal = (contract) => {
+    setSelectedUser(contract);
+    setIsDeleteOpen(true);
+  };
+
   const handlePrint = () => {
     window.print();
   };
-  const AttestationContent = ({ user, contract }) => {
-    if (!user || !contract) return null;
 
-    return (
-      <div className="p-8 bg-white max-w-3xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            ATTESTATION DE TRAVAIL
-          </h1>
-          <div className="w-32 h-1 bg-blue-600 mx-auto"></div>
-        </div>
+  const openUpdateModal = (contract) => {
+    setSelectedUser(contract);
+    setIsUpdateOpen(true);
+  };
+  const handleDelete = async () => {
+    if (!selectedUser || !selectedUser.id) {
+      setDeleteError("Aucun contrat sélectionné pour la suppression !");
+      return;
+    }
 
-        <div className="space-y-8">
-          <p className="text-lg text-gray-700 leading-relaxed">
-            Je soussigné(e), Directeur des Ressources Humaines, certifie que :
-          </p>
+    try {
+      const response = await api.delete(`/contract/${selectedUser.id}`);
+      console.log("Contrat supprimé avec succès :", response.data);
 
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-sm">
-            <div className="grid grid-cols-1 gap-6">
-              <div className="flex items-center">
-                <span className="text-gray-600 font-semibold w-48">
-                  Nom et Prénom :
-                </span>
-                <span className="text-gray-800">{user.name}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-gray-600 font-semibold w-48">
-                  Email :
-                </span>
-                <span className="text-gray-800">{user.email}</span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-gray-600 font-semibold w-48">
-                  Type de Contrat :
-                </span>
-                <span
-                  className={`px-4 py-1 rounded-full text-sm font-semibold ${
-                    contract.type === "CDI"
-                      ? "bg-green-100 text-green-800"
-                      : contract.type === "CDD"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-orange-100 text-orange-800"
-                  }`}
-                >
-                  {contract.type}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <span className="text-gray-600 font-semibold w-48">
-                  Durée :
-                </span>
-                <span className="text-gray-800">
-                  {calculateDuration(contract.start_date, contract.end_date)}
-                  mois
-                </span>
-              </div>
-            </div>
-          </div>
+      setContracts((prevContracts) =>
+        prevContracts.filter((c) => c.id !== selectedUser.id)
+      );
 
-          <div className="text-gray-700 space-y-6">
-            <p className="leading-relaxed">
-              Cette attestation est délivrée à l'intéressé(e) pour servir et
-              valoir ce que de droit.
-            </p>
-
-            <div className="text-right">
-              <p>Fait à Agadir, le {currentDate}</p>
-              <div className="mt-8">
-                <p className="font-semibold">Signature et cachet</p>
-                <div className="w-40 h-24 border border-dashed border-gray-300 rounded-lg mt-2 ml-auto"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-16 pt-8 border-t border-gray-200">
-          <div className="text-center text-sm text-gray-500">
-            <p>
-              Ce document est généré automatiquement et ne nécessite pas de
-              signature manuscrite.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+      setIsDeleteOpen(false);
+      setDeleteError(null);
+    } catch (err) {
+      console.error(
+        "Erreur lors de la suppression :",
+        err.response?.data || err.message
+      );
+      setDeleteError(
+        "Erreur lors de la suppression du contrat. Veuillez réessayer."
+      );
+    }
   };
   if (isLoading) {
     return (
@@ -175,6 +148,7 @@ const ContratDesPersonnels = () => {
               Contrats du Personnels
             </h1>
           </div>
+          <ToastContainer />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div className="relative">
@@ -284,10 +258,16 @@ const ContratDesPersonnels = () => {
                         >
                           <Download />
                         </button>
-                        <button className="text-blue-500">
+                        <button
+                          onClick={() => openUpdateModal(contract)}
+                          className="text-blue-500"
+                        >
                           <Edit />
                         </button>
-                        <button className="text-red-500">
+                        <button
+                          className="text-red-500"
+                          onClick={() => openDeleteModal(contract)}
+                        >
                           <Trash />
                         </button>
                       </div>
@@ -298,6 +278,18 @@ const ContratDesPersonnels = () => {
             </table>
           </div>
         </div>
+        {isUpdateOpen && (
+          <UpdateContract
+            contract={selectedUser}
+            onClose={() => setIsUpdateOpen(false)}
+          />
+        )}
+        <DeleteContract
+          isOpen={isDeleteOpen}
+          onClose={() => setIsDeleteOpen(false)}
+          onDelete={handleDelete}
+          error={deleteError}
+        />
         <Modal show={showModal} onClose={() => setShowModal(false)}>
           <Modal.Header className="p-4"></Modal.Header>
           <Modal.Body>
