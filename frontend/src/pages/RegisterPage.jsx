@@ -156,7 +156,8 @@ const RegisterPage = () => {
                   <img
                     src={imagePreview}
                     alt="Aperçu"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain{
+                    "
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-100 flex items-center justify-center">

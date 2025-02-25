@@ -38,8 +38,8 @@ const ContratDesPersonnels = () => {
     const endDate = new Date(end_date);
     const today = new Date();
     const timeDiff = endDate.getTime() - today.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // Différence en jours
-    return daysDiff <= 30 && daysDiff >= 0; // Expire dans les 30 prochains jours
+    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    return daysDiff <= 30 && daysDiff >= 0;
   };
 
   useEffect(() => {

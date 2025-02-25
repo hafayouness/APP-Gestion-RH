@@ -1,5 +1,7 @@
 import { useState } from "react";
 import api from "../utils/api";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export const UpdateContract = ({ contract, onClose }) => {
   const [formData, setFormData] = useState({
@@ -17,13 +19,12 @@ export const UpdateContract = ({ contract, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.put(
-        `/contract/${contract.id}/update`,
-        formData
-      );
+      await api.put(`/contract/${contract.id}/update`, formData);
+      toast.success("Contrat mis à jour avec succès !");
       onClose();
       window.location.reload();
     } catch (err) {
+      toast.error("Erreur lors de la mise à jour du contrat.");
       console.error("Erreur de mise à jour:", err);
     }
   };
@@ -31,7 +32,7 @@ export const UpdateContract = ({ contract, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-5 rounded-lg shadow-lg w-96">
-        <h2 className="text-lg font-bold mb-6 text-center text-blue-500 ">
+        <h2 className="text-lg font-bold mb-6 text-center text-blue-500">
           Modifier le contrat
         </h2>
 
@@ -74,6 +75,7 @@ export const UpdateContract = ({ contract, onClose }) => {
           </button>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

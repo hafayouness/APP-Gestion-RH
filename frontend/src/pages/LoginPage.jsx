@@ -4,6 +4,8 @@ import api from "../utils/api";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setCredentials } from "../store/features/auth/authSlice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -48,6 +50,7 @@ const LoginPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateForm()) {
+      toast.error("Veuillez corriger les erreurs du formulaire.");
       return;
     }
 
@@ -56,32 +59,28 @@ const LoginPage = () => {
 
     try {
       const response = await api.post("/login", formData);
-
       dispatch(
         setCredentials({ user: response.data.user, token: response.data.token })
       );
       setSubmitSuccess(true);
+      toast.success("Connexion réussie ! Redirection en cours...");
       navigate("/dashboard");
-
-      setFormData({
-        email: "",
-        password: "",
-        rememberMe: false,
-      });
+      setFormData({ email: "", password: "", rememberMe: false });
     } catch (error) {
       console.error("Erreur lors de connexion:", error);
       if (error.response?.status === 401) {
-        setErrors({
-          submit: "Adresse email ou mot de passe incorrect.",
-        });
+        setErrors({ submit: "Adresse email ou mot de passe incorrect." });
+        toast.error("Adresse email ou mot de passe incorrect.");
       } else if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
+        toast.error("Erreur lors de la connexion. Vérifiez vos informations.");
       } else {
         setErrors({
           submit:
             error.response?.data?.message ||
             "Une erreur est survenue lors de la connexion.",
         });
+        toast.error("Une erreur est survenue lors de la connexion.");
       }
     } finally {
       setIsSubmitting(false);
@@ -89,6 +88,7 @@ const LoginPage = () => {
   };
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <ToastContainer />
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <LogIn className="h-12 w-12 text-indigo-600" />

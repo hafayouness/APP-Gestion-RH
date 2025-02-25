@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -55,6 +56,30 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::post('/contract', [ContractController::class, 'store']);
     Route::put('/contract/{id}/update', [ContractController::class, 'update']);
     Route::delete('/contract/{id}', [ContractController::class, 'delete']);
+});
+// Route::middleware('auth:sanctum')->group(function () {
+//     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
+//     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut']);
+//     Route::get('/attendance/history', [AttendanceController::class, 'history']);
+// });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+    
+    // Routes d'API pour les actions de présence
+    Route::prefix('/attendance')->group(function () {
+        Route::post('/check-in', [AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+        Route::post('/start-pause', [AttendanceController::class, 'startPause'])->name('attendance.start-pause');
+        Route::post('/end-pause', [AttendanceController::class, 'endPause'])->name('attendance.end-pause');
+        Route::post('/check-out', [AttendanceController::class, 'checkOut'])->name('attendance.check-out');
+        Route::post('/compensate', [AttendanceController::class, 'compensate'])->name('attendance.compensate');
+        Route::get('/stats', [AttendanceController::class, 'stats'])->name('attendance.stats');
+        
+        // Nouvelles routes pour l'historique
+        Route::get('/history', [AttendanceController::class, 'history'])->name('attendance.history');
+        Route::get('/user-activity', [AttendanceController::class, 'userActivity'])
+            ->name('attendance.user-activity')
+            ->middleware('can:manage-users');
+    });
 });
 
 

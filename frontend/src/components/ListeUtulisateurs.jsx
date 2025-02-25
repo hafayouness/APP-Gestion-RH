@@ -11,6 +11,8 @@ import {
   FilePenLine,
   Trash2,
 } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ListeUtilisateurs = () => {
   const [users, setUsers] = useState([]);
