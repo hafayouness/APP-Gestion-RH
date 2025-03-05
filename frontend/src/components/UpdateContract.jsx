@@ -12,8 +12,17 @@ export const UpdateContract = ({ contract, onClose }) => {
     end_date: contract?.end_date || "",
   });
 
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "type" && value === "CDI") {
+      setFormData({ ...formData, type: value, end_date: "" });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -55,14 +64,27 @@ export const UpdateContract = ({ contract, onClose }) => {
           onChange={handleChange}
           className="w-full p-2 border rounded mb-4"
         />
-        <label className="block mb-2">Date de fin :</label>
+        {/* <label className="block mb-2">Date de fin :</label>
         <input
           type="date"
           name="end_date"
           value={formData.end_date}
           onChange={handleChange}
           className="w-full p-2 border rounded mb-4"
-        />
+        /> */}
+
+        {formData.type !== "CDI" && (
+          <>
+            <label className="block mb-2">Date de fin :</label>
+            <input
+              type="date"
+              name="end_date"
+              value={formData.end_date}
+              onChange={handleChange}
+              className="w-full p-2 border rounded mb-4"
+            />
+          </>
+        )}
         <div className="flex justify-end gap-2">
           <button onClick={onClose} className="bg-gray-300 px-4 py-2 rounded">
             Annuler

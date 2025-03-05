@@ -6,19 +6,43 @@ use App\Models\Attendance;
 use App\Models\AttendanceHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
     public function index()
-    {
-        $user = Auth::user();
-        $attendances = Attendance::where('user_id', $user->id)
+{
+    $user = Auth::user();
+    
+    if ($user->role_id === 'admin') {
+        // L'admin peut voir tous les pointages, sans répéter les infos de l'utilisateur
+        $attendances = Attendance::with('user:id,name,email,phone')
             ->orderBy('date', 'desc')
-            ->paginate(10);
-            
-        return view('attendances.index', compact('attendances'));
+            ->get()
+            ->groupBy('user_id');  // Regroupement par utilisateur pour éviter la répétition
+        
+        // Si vous voulez envoyer la structure différente, comme un tableau d'objets utilisateurs
+        $attendances = $attendances->map(function ($attendanceGroup) {
+            return [
+                'user' => $attendanceGroup->first()->user, // Informations de l'utilisateur
+                'attendances' => $attendanceGroup  // Liste des pointages pour cet utilisateur
+            ];
+        });
+    } else {
+        // Un utilisateur normal ne voit que ses propres pointages
+        $attendances = Attendance::where('user_id', $user->id)
+            ->with('user:id,name,email,phone')
+            ->orderBy('date', 'desc')
+            ->get();
     }
+
+    return response()->json($attendances);
+}
+
+    
+
+
     
     public function checkIn(Request $request)
     {
@@ -349,7 +373,7 @@ class AttendanceController extends Controller
     {
         $user = Auth::user();
         
-        // Obtenir les statistiques pour la semaine en cours
+        
         $startOfWeek = Carbon::now()->startOfWeek();
         $endOfWeek = Carbon::now()->endOfWeek();
         
@@ -396,7 +420,7 @@ class AttendanceController extends Controller
         $query = AttendanceHistory::with('attendance')
             ->where('user_id', $user->id);
             
-        // Filtrer par date spécifique
+       
         if ($request->has('date')) {
             $date = Carbon::parse($request->date)->toDateString();
             $query->whereHas('attendance', function ($q) use ($date) {
@@ -404,7 +428,7 @@ class AttendanceController extends Controller
             });
         }
         
-        // Filtrer par plage de dates
+        
         if ($request->has('from_date') && $request->has('to_date')) {
             $fromDate = Carbon::parse($request->from_date)->toDateString();
             $toDate = Carbon::parse($request->to_date)->toDateString();
@@ -414,17 +438,17 @@ class AttendanceController extends Controller
             });
         }
         
-        // Filtrer par ID de présence
+        
         if ($request->has('attendance_id')) {
             $query->where('attendance_id', $request->attendance_id);
         }
         
-        // Filtrer par type d'action
+       
         if ($request->has('action_type')) {
             $query->where('action_type', $request->action_type);
         }
         
-        // Trier par date et heure de création
+       
         $histories = $query->orderBy('created_at', 'desc')
             ->paginate(20);
             
@@ -436,7 +460,6 @@ class AttendanceController extends Controller
     
     public function userActivity(Request $request)
     {
-        // Cette méthode est réservée aux administrateurs
         if (!Auth::user()->hasRole('admin')) {
             return response()->json([
                 'success' => false,
@@ -454,12 +477,12 @@ class AttendanceController extends Controller
         
         $query = AttendanceHistory::with(['attendance', 'user']);
         
-        // Filtrer par utilisateur
+        
         if ($request->has('user_id')) {
             $query->where('user_id', $request->user_id);
         }
         
-        // Filtrer par date spécifique
+     
         if ($request->has('date')) {
             $date = Carbon::parse($request->date)->toDateString();
             $query->whereHas('attendance', function ($q) use ($date) {
@@ -467,7 +490,7 @@ class AttendanceController extends Controller
             });
         }
         
-        // Filtrer par plage de dates
+       
         if ($request->has('from_date') && $request->has('to_date')) {
             $fromDate = Carbon::parse($request->from_date)->toDateString();
             $toDate = Carbon::parse($request->to_date)->toDateString();
@@ -477,12 +500,12 @@ class AttendanceController extends Controller
             });
         }
         
-        // Filtrer par type d'action
+        
         if ($request->has('action_type')) {
             $query->where('action_type', $request->action_type);
         }
         
-        // Trier par date et heure de création
+        
         $activities = $query->orderBy('created_at', 'desc')
             ->paginate(20);
             

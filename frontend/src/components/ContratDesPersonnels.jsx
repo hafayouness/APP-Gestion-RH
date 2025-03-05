@@ -76,7 +76,11 @@ const ContratDesPersonnels = () => {
     return matchesSearch && matchesType;
   });
 
-  const calculateDuration = (start_date, end_date) => {
+  const calculateDuration = (start_date, end_date, type) => {
+    if (type === "CDI") {
+      return "-";
+    }
+
     const start = new Date(start_date);
     const end = new Date(end_date);
     const diff = Math.abs(end.getTime() - start.getTime());
@@ -192,22 +196,22 @@ const ContratDesPersonnels = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Utilisateur
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date de début
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date de fin
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Durée
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -216,11 +220,11 @@ const ContratDesPersonnels = () => {
                 {filteredContracts.map((contract) => (
                   <tr key={contract.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 cursor-pointer">
+                      <div className="text-sm font-medium text-gray-900 cursor-pointer text-center">
                         {contract.user?.name}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           contract.type === "CDI"
@@ -231,27 +235,30 @@ const ContratDesPersonnels = () => {
                         {contract.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
                         {contract.start_date}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {contract.end_date}
+
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-gray-900 text-center">
+                        {contract.type === "CDI" ? "-" : contract.end_date}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-gray-900 text-center">
                         {calculateDuration(
                           contract.start_date,
-                          contract.end_date
+                          contract.end_date,
+                          contract.type
                         )}{" "}
-                        mois
+                        {contract.type !== "CDI" ? "mois" : ""}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center gap-3 justify-center">
                         <button
                           onClick={() => handleUserClick(contract.user)}
                           className="text-blue-200"

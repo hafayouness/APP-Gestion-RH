@@ -57,11 +57,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::put('/contract/{id}/update', [ContractController::class, 'update']);
     Route::delete('/contract/{id}', [ContractController::class, 'delete']);
 });
-// Route::middleware('auth:sanctum')->group(function () {
-//     Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
-//     Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut']);
-//     Route::get('/attendance/history', [AttendanceController::class, 'history']);
-// });
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id'); // Référence à l'utilisateur
             $table->string('type'); // Type de contrat (CDI, CDD, Stage...)
-            $table->integer('duration'); // Durée du contrat en mois
+            $table->integer('duration')->nullable(); // Durée du contrat en mois
             $table->date('start_date'); // Date de début
-            $table->date('end_date'); // Date de fin
+            $table->date('end_date')->nullable();// Date de fin
             $table->string('document')->nullable();// Document contractuel (PDF, DOCX...)
             $table->text('details')->nullable();
             $table->timestamps();

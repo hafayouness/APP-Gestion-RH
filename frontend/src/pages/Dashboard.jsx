@@ -6,10 +6,10 @@ import {
   LogOut,
   Settings,
   ChevronDown,
-  UserCheck,
-  UserPlus,
   FileText,
   FileDiff,
+  FileClockIcon,
+  UserPlus,
 } from "lucide-react";
 import { Link, Outlet } from "react-router-dom";
 import api from "../utils/api";
@@ -84,7 +84,7 @@ const Dashboard = () => {
                   <span className="text-black">Liste des personnels</span>
                 )}
               </Link>
-              {/* <Link
+              <Link
                 to="/dashboard/ajouter-personnel"
                 className="flex items-center justify-start space-x-3 p-3"
               >
@@ -92,7 +92,7 @@ const Dashboard = () => {
                 {isSidebarOpen && (
                   <span className="text-black">Ajouter les personnels</span>
                 )}
-              </Link> */}
+              </Link>
               <Link
                 to="/dashboard/creation-contract"
                 className="flex items-center justify-start space-x-3 p-3"
@@ -111,6 +111,15 @@ const Dashboard = () => {
                   <span className="text-black">
                     Les contrats des personnels
                   </span>
+                )}
+              </Link>
+              <Link
+                to="/dashboard/historique-pointage"
+                className="flex items-center justify-start space-x-3 p-3"
+              >
+                <FileClockIcon size={20} color="gray" />
+                {isSidebarOpen && (
+                  <span className="text-black">Historique De Pointage</span>
                 )}
               </Link>
             </>

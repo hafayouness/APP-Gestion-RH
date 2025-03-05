@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
@@ -11,6 +10,7 @@ import ListeUtulisateurs from "./components/ListeUtulisateurs";
 import ContratDesPersonnels from "./components/ContratDesPersonnels";
 import ProfileUser from "./components/ProfileUser";
 import CreationContracts from "./components/CreationContracts";
+import HistoriquePointage from "./components/HistoriquePointage";
 
 function App() {
   return (
@@ -69,6 +69,10 @@ function App() {
             <Route
               path="contrat-personnel"
               element={<ContratDesPersonnels />}
+            />
+            <Route
+              path="historique-pointage"
+              element={<HistoriquePointage />}
             />
           </Route>
         </Routes>
