@@ -11,12 +11,16 @@ import {
   FileClockIcon,
   UserPlus,
 } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import api from "../utils/api";
+import { useDispatch } from "react-redux";
+import { logout } from "../store/features/auth/authSlice";
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,6 +59,23 @@ const Dashboard = () => {
 
     fetchUserProfile();
   }, []);
+  const handleLogout = async () => {
+    try {
+      const response = await api.post("/logout", null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (response.status === 200) {
+        localStorage.removeItem("token");
+        dispatch(logout());
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Erreur de déconnexion :", error.response?.data);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -223,7 +244,10 @@ const Dashboard = () => {
                       <Settings size={18} />
                       <span>Paramètres</span>
                     </button>
-                    <button className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-gray-100 w-full">
+                    <button
+                      className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-gray-100 w-full"
+                      onClick={handleLogout}
+                    >
                       <LogOut size={18} />
                       <span>Se déconnecter</span>
                     </button>

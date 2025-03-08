@@ -43,93 +43,100 @@ class ProfileController extends Controller
 
   
 //  Ajouter l'user 
-//     public function store(Request $request)
-// {
-//     if (auth()->user()->role_id !== "admin") { 
-//         return response()->json([
-//             'message' => 'Accès refusé. Seuls les administrateurs peuvent ajouter des utilisateurs.'
-//         ], 403);
-//     }
 
-//     $validator = Validator::make($request->all(), [
-//         "name" => "required|string|max:255",
-//         "email" => "required|email|unique:users,email",
-//         "role_id" => "nullable|string|in:manager,employer,stagiaire",
-//         "phone" => "nullable|string|max:20",
-//         "address" => "nullable|string|max:255",
-//         "photo" => "nullable|string",
-//     ]);
+    public function store(Request $request)
+    {
+      
+        if (auth()->user()->role_id !== "admin") {
+            return response()->json([
+                'message' => 'Accès refusé. Seuls les administrateurs peuvent ajouter des utilisateurs.'
+            ], 403);
+        }
 
-//     if ($validator->fails()) {
-//         return response()->json(["errors" => $validator->errors()], 422);
-//     }
+      
+        $validator = Validator::make($request->all(), [
+            "name" => "required|string|max:255",
+            "email" => "required|email|unique:users,email",
+            "role_id" => "nullable|string|in:manager,employer,stagiaire",  
+            "phone" => "nullable|string|max:20",
+            "address" => "nullable|string|max:255",
+            "password" => "required|string|min:8", 
+            "photo" => "nullable|string",
+        ]);
 
-//     $tempPassword = str_pad(rand(10000000, 99999999), 8, '0', STR_PAD_LEFT); // Générer un mot de passe à 8 chiffres
-//     $validated = $validator->validated();
-//     $user = User::create([
-//         "name" => $request->name,
-//         "email" => $request->email,
-//         "role_id" => $request->role_id,
-//         "phone" => $request->phone,
-//         "address" => $request->address,
-//         "photo" => $request->photo,
-//         "password" => Hash::make($tempPassword), 
-//     ]);
+        
+        if ($validator->fails()) {
+            return response()->json(["errors" => $validator->errors()], 422);
+        }
 
-   
-//     $photoPath = null;
-//     if ($request->filled('photo')) {
-//         try {
-//             Log::info('Profile Photo Received', [
-//                 'photo' => substr($request->input('photo'), 0, 100) . '...' 
-//             ]);
+        
+        $validated = $validator->validated();
 
-//             $imageData = $request->input('photo');
-//             if (strpos($imageData, 'data:image/') === 0) {
-//                 list($type, $imageData) = explode(';', $imageData);
-//                 list(, $imageData) = explode(',', $imageData);
-//             }
+        
+        $user = User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "role_id" => $request->role_id ?? 'employer', 
+            "phone" => $request->phone,
+            "address" => $request->address,
+            "photo" => $request->photo,
+            "password" => Hash::make($request->password), 
+        ]);
 
-//             $image = base64_decode($imageData);
+        
+        $photoPath = null;
 
-//             if ($image === false) {
-//                 throw new \Exception('Le format de la photo est invalide ou non décodable.');
-//             }
-
-//             $imageName = Str::uuid() . '.jpg';
-//             $path = 'profile_photos/' . $imageName;
-//             Storage::disk('public')->put($path, $image);
-
-//             $photoPath = $path;
-//             Log::info('Image uploaded successfully', ['path' => $path]);
-
-//         } catch (\Exception $e) {
-//             Log::error('Image upload error: ' . $e->getMessage());
-//             return response()->json([
-//                 'message' => 'Erreur lors du traitement de la photo.',
-//                 'error' => $e->getMessage(),
-//             ], 422);
-//         }
-//     }
-
-//     // Création du profil utilisateur
-//     Profile::create([
-//         "user_id" => $user->id,
-//         "phone" => $validated['phone'] ?? null,
-//         "address" => $validated['address'] ?? null,
-//         'photo' => $photoPath ? asset('storage/' . $photoPath) : null,
-//     ]);
-
+        if ($request->filled('photo')) {
+            try {
+                
+                
+                Log::info('Profile Photo Received', [
+                    'photo' => substr($request->input('photo'), 0, 100) . '...' 
+                ]);
+                 $imageData = $request->input('photo');
+                if (strpos($imageData, 'data:image/') === 0) {
+                    list($type, $imageData) = explode(';', $imageData);
+                    list(, $imageData) = explode(',', $imageData);
+                }
     
-//     if (in_array($user->role_id, ['manager', 'employer', 'stagiaire'])) {
-//         $this->sendSms($user->phone, "Bonjour {$user->name}, votre mot de passe temporaire est : $tempPassword");
-//     }
+                $image = base64_decode($imageData);
+    
+                if ($image === false) {
+                    throw new \Exception('Le format de la photo est invalide ou non décodable.');
+                }
+    
+                
+                $imageName = Str::uuid() . '.jpg';
+                $path = 'profile_photos/' . $imageName;
+                Storage::disk('public')->put($path, $image);
+    
+                $photoPath = $path;
+                Log::info('Image uploaded successfully', ['path' => $path]);
+    
+            } catch (\Exception $e) {
+                Log::error('Image upload error: ' . $e->getMessage());
+                return response()->json([
+                    'message' => 'Erreur lors du traitement de la photo.',
+                    'error' => $e->getMessage(),
+                ], 422);
+            }
+        }
+        
+        Profile::create([
+            "user_id" => $user->id,
+            "phone" => $validated['phone'] ?? null,
+            "address" => $validated['address'] ?? null,
+           'photo' => $photoPath ? asset('storage/' . $photoPath) : null,
+        ]);
 
-//     return response()->json([
-//         'message' => "Utilisateur {$user->role_id} créé avec succès. Le mot de passe a été envoyé par SMS.",
-//         'user' => $user->load('profile')
-//     ], 201);
-// }
+        return response()->json([
+            'message' => "Utilisateur {$user->role_id} créé avec succès.",
+            'user' => $user->load('profile')
+        ], 201);
+    }
+   
+
+
 
 
 

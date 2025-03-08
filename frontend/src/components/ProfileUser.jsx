@@ -50,9 +50,7 @@ const ProfileUser = () => {
         </div>
       </div>
 
-      {/* Profile Info */}
       <div className="relative px-8 pb-8">
-        {/* User Information */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-6">
             <div>

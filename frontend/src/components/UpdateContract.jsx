@@ -64,15 +64,6 @@ export const UpdateContract = ({ contract, onClose }) => {
           onChange={handleChange}
           className="w-full p-2 border rounded mb-4"
         />
-        {/* <label className="block mb-2">Date de fin :</label>
-        <input
-          type="date"
-          name="end_date"
-          value={formData.end_date}
-          onChange={handleChange}
-          className="w-full p-2 border rounded mb-4"
-        /> */}
-
         {formData.type !== "CDI" && (
           <>
             <label className="block mb-2">Date de fin :</label>

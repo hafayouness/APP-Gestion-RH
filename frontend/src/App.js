@@ -11,6 +11,7 @@ import ContratDesPersonnels from "./components/ContratDesPersonnels";
 import ProfileUser from "./components/ProfileUser";
 import CreationContracts from "./components/CreationContracts";
 import HistoriquePointage from "./components/HistoriquePointage";
+import AjouterLesPersonnels from "./components/AjouterLesPersonnels";
 
 function App() {
   return (
@@ -66,6 +67,10 @@ function App() {
             <Route path="liste-personnels" element={<ListeUtulisateurs />} />
             <Route path="profile-user" element={<ProfileUser />} />
             <Route path="creation-contract" element={<CreationContracts />} />
+            <Route
+              path="ajouter-personnel"
+              element={<AjouterLesPersonnels />}
+            />
             <Route
               path="contrat-personnel"
               element={<ContratDesPersonnels />}
