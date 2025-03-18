@@ -10,11 +10,13 @@ import {
   FileDiff,
   FileClockIcon,
   UserPlus,
+  SquareDashedMousePointer,
 } from "lucide-react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import api from "../utils/api";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/features/auth/authSlice";
+import ButtonPointage from "../components/ButtonPointage";
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -66,6 +68,7 @@ const Dashboard = () => {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+      console.log(response);
 
       if (response.status === 200) {
         localStorage.removeItem("token");
@@ -154,7 +157,17 @@ const Dashboard = () => {
               {isSidebarOpen && <span className="text-black">Mon Profil</span>}
             </Link>
           )}
+          {!useRole && (
+            <Link
+              to="/dashboard/pointage"
+              className="flex items-center justify-start space-x-3 p-3"
+            >
+              <SquareDashedMousePointer size={20} color="gray" />
+              {isSidebarOpen && <span className="text-black">Pointage</span>}
+            </Link>
+          )}
         </div>
+        <ButtonPointage role={user.role_id} />
         {/* <div className="p-4">
           {isSidebarOpen && (
             <div className="text-black text-center mb-4">
